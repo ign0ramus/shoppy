@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const Cart = require('../models/cart');
 
 const handleGetHome = (req, res) => {
 	Product.getAllProducts(products => {
@@ -20,10 +21,31 @@ const handleGetProducts = (req, res) => {
 	});
 };
 
+const handleGetProduct = (req, res) => {
+	const { id } = req.params;
+	Product.findById(id, product => {
+		if (!product) {
+			return res.redirect('/not-found');
+		}
+		res.render('shop/product-detail', {
+			path: '/products',
+			docTitle: product.title,
+			product,
+		});
+	});
+};
+
 const handleGetCart = (req, res) => {
 	res.render('shop/cart', {
 		path: '/cart',
 		docTitle: 'Your Cart',
+	});
+};
+
+const handlePostCart = (req, res) => {
+	const { productId } = req.body;
+	Product.findById(productId, product => {
+		Cart.addProduct(productId, product.price);
 	});
 };
 
@@ -47,4 +69,6 @@ module.exports = {
 	handleGetCart,
 	handleGetCheckout,
 	handleGetOrders,
+	handleGetProduct,
+	handlePostCart,
 };

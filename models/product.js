@@ -4,6 +4,7 @@ const rootDir = require('../utils/path');
 
 class Product {
 	constructor(title, imageUrl, description, price) {
+		this.id = Math.random().toString();
 		this.title = title;
 		this.imageUrl = imageUrl;
 		this.description = description;
@@ -22,6 +23,23 @@ class Product {
 				return cb([]);
 			}
 			cb(JSON.parse(data));
+		});
+	}
+
+	static findById(id, cb) {
+		Product.getProductsFromFile(products => {
+			const product = products.find(prod => prod.id === id);
+			cb(product);
+		});
+	}
+
+	static edit(updates) {
+		Product.getProductsFromFile(products => {
+			const updateProdIdx = products.findIndex(prod => prod.id === updates.id);
+			products[ updateProdIdx ] = {...updates};
+			fs.writeFile(Product.filePath, JSON.stringify(products), err => {
+				console.error(err);
+			});
 		});
 	}
 

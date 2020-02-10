@@ -1,9 +1,10 @@
 const Product = require('../models/product');
 
 const handleGetAddProduct = (req, res) => {
-	res.render('admin/add-product', {
+	res.render('admin/add-or-edit-product', {
 		docTitle: 'Add Products',
 		path: '/admin/add-product',
+		product: null,
 	});
 };
 
@@ -14,6 +15,27 @@ const handlePostAddProduct = (req, res) => {
 	product.save();
 
 	res.redirect('/');
+};
+
+const handleGetEditProduct = (req, res) => {
+	const { id } = req.params;
+
+	Product.findById(id, product => {
+		if (!product) {
+			return res.redirect('/not-found');
+		}
+
+		res.render('admin/add-or-edit-product', {
+			docTitle: 'Edit Products',
+			path: '',
+			product,
+		});
+	});
+};
+
+const handlePostEditProduct = (req, res) => {
+	Product.edit(req.body);
+	res.redirect('/admin/products');
 };
 
 const handleGetProducts = (req, res) => {
@@ -30,4 +52,6 @@ module.exports = {
 	handleGetAddProduct,
 	handlePostAddProduct,
 	handleGetProducts,
+	handleGetEditProduct,
+	handlePostEditProduct,
 };
