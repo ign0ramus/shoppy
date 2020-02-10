@@ -36,10 +36,20 @@ class Product {
 	static edit(updates) {
 		Product.getProductsFromFile(products => {
 			const updateProdIdx = products.findIndex(prod => prod.id === updates.id);
-			products[ updateProdIdx ] = {...updates};
+			products[updateProdIdx] = { ...updates };
 			fs.writeFile(Product.filePath, JSON.stringify(products), err => {
 				console.error(err);
 			});
+		});
+	}
+
+	static delete(id, cb) {
+		Product.getProductsFromFile(products => {
+			const updatedProducts = products.filter(prod => prod.id !== id);
+			fs.writeFile(Product.filePath, JSON.stringify(updatedProducts), err => {
+				console.error(err);
+			});
+			cb();
 		});
 	}
 

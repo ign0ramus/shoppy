@@ -48,10 +48,18 @@ const handleGetProducts = (req, res) => {
 	});
 };
 
+const handleDeleteProduct = (req, res) => {
+	const { id } = req.body;
+	Product.delete(id, () => {
+		res.redirect('/admin/products');
+	});
+};
+
 module.exports = {
 	handleGetAddProduct,
 	handlePostAddProduct,
 	handleGetProducts,
 	handleGetEditProduct,
 	handlePostEditProduct,
+	handleDeleteProduct,
 };

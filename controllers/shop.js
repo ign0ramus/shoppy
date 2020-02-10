@@ -36,9 +36,21 @@ const handleGetProduct = (req, res) => {
 };
 
 const handleGetCart = (req, res) => {
-	res.render('shop/cart', {
-		path: '/cart',
-		docTitle: 'Your Cart',
+	Cart.getCart(cart => {
+		Product.getAllProducts(products => {
+			const cartProducts = products.reduce((acc, prod) => {
+				const product = cart.products.find(cartProd => cartProd.id === prod.id);
+				return product
+					? [...acc, { data: prod, quantity: product.quantity }]
+					: acc;
+			}, []);
+
+			res.render('shop/cart', {
+				path: '/cart',
+				docTitle: 'Your Cart',
+				products: cartProducts,
+			});
+		});
 	});
 };
 
@@ -46,6 +58,15 @@ const handlePostCart = (req, res) => {
 	const { productId } = req.body;
 	Product.findById(productId, product => {
 		Cart.addProduct(productId, product.price);
+		res.redirect('/cart');
+	});
+};
+
+const handleDeleteCartItem = (req, res) => {
+	const { id } = req.body;
+	Product.findById(id, product => {
+		Cart.delete(id, product.price);
+		res.redirect('/cart');
 	});
 };
 
@@ -71,4 +92,5 @@ module.exports = {
 	handleGetOrders,
 	handleGetProduct,
 	handlePostCart,
+	handleDeleteCartItem,
 };

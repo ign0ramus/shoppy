@@ -37,6 +37,33 @@ class Cart {
 			});
 		});
 	}
+
+	static delete(id, price) {
+		fs.readFile(Cart.filePath, (err, data) => {
+			if (err) {
+				return;
+			}
+
+			const cart = JSON.parse(data);
+			const product = cart.products.find(prod => prod.id === id);
+			cart.totalPrice = cart.totalPrice - product.quantity * price;
+			cart.products = cart.products.filter(prod => prod.id !== id);
+
+			fs.writeFile(Cart.filePath, JSON.stringify(cart), err => {
+				console.error(err);
+			});
+		});
+	}
+
+	static getCart(cb) {
+		fs.readFile(Cart.filePath, (err, data) => {
+			if (err) {
+				console.log(err)
+				return cb(null);
+			}
+			cb(JSON.parse(data));
+		});
+	}
 }
 
 module.exports = Cart;
