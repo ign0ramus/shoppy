@@ -1,14 +1,16 @@
 const Product = require('../models/product');
 
 const handleGetAddProduct = (req, res) => {
-	res.render('add-product', {
+	res.render('admin/add-product', {
 		docTitle: 'Add Products',
 		path: '/admin/add-product',
 	});
 };
 
 const handlePostAddProduct = (req, res) => {
-	const product = new Product(req.body.title);
+	const { title, imageUrl, description, price } = req.body;
+
+	const product = new Product(title, imageUrl, description, price);
 	product.save();
 
 	res.redirect('/');
@@ -16,10 +18,10 @@ const handlePostAddProduct = (req, res) => {
 
 const handleGetProducts = (req, res) => {
 	Product.getAllProducts(products => {
-		res.render('shop', {
+		res.render('admin/products', {
 			products,
-			docTitle: 'My Shop',
-			path: '/',
+			docTitle: 'Admin Products',
+			path: '/admin/products',
 		});
 	});
 };

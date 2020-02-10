@@ -3,15 +3,18 @@ const path = require('path');
 const rootDir = require('../utils/path');
 
 class Product {
-	constructor(title) {
+	constructor(title, imageUrl, description, price) {
 		this.title = title;
+		this.imageUrl = imageUrl;
+		this.description = description;
+		this.price = price;
 	}
 
 	static filePath = path.join(rootDir, 'data', 'products.json');
 
-    static getAllProducts(cb) {
-        Product.getProductsFromFile(cb);
-    }
+	static getAllProducts(cb) {
+		Product.getProductsFromFile(cb);
+	}
 
 	static getProductsFromFile(cb) {
 		fs.readFile(Product.filePath, (err, data) => {
