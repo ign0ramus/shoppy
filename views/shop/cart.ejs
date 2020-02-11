@@ -12,7 +12,7 @@
                             </p>
                             <form action="/cart-delete-item" method="POST">
                                 <button class="btn" type="submit">Delete</button>
-                                <input hidden value="<%= product._id%>" name="id">
+                                <input hidden value="<%= product.id%>" name="id">
                             </form>
                         </li>
                     <% }); %>
