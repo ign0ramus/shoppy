@@ -1,65 +1,48 @@
-const fs = require('fs');
-const path = require('path');
-const rootDir = require('../utils/path');
+const mongoDb = require('mongodb');
+const { getDb } = require('../database/mongodb');
 
 class Product {
-	constructor(title, imageUrl, description, price) {
-		this.id = Math.random().toString();
+	constructor(title, imageUrl, price, description, id, userId) {
 		this.title = title;
 		this.imageUrl = imageUrl;
-		this.description = description;
 		this.price = price;
+		this.description = description;
+		this._id = id ? new mongoDb.ObjectID(id) : null;
+		this.userId = userId;
 	}
 
-	static filePath = path.join(rootDir, 'data', 'products.json');
-
-	static getAllProducts(cb) {
-		Product.getProductsFromFile(cb);
-	}
-
-	static getProductsFromFile(cb) {
-		fs.readFile(Product.filePath, (err, data) => {
-			if (err) {
-				return cb([]);
+	async save() {
+		const db = getDb();
+		try {
+			if (this._id) {
+				return await db
+					.collection('products')
+					.updateOne({ _id: this._id }, { $set: this });
 			}
-			cb(JSON.parse(data));
-		});
+			return await db.collection('products').insertOne(this);
+		} catch (err) {
+			console.error(err);
+		}
 	}
 
-	static findById(id, cb) {
-		Product.getProductsFromFile(products => {
-			const product = products.find(prod => prod.id === id);
-			cb(product);
-		});
+	static async getAll() {
+		return await getDb()
+			.collection('products')
+			.find()
+			.toArray();
 	}
 
-	static edit(updates) {
-		Product.getProductsFromFile(products => {
-			const updateProdIdx = products.findIndex(prod => prod.id === updates.id);
-			products[updateProdIdx] = { ...updates };
-			fs.writeFile(Product.filePath, JSON.stringify(products), err => {
-				console.error(err);
-			});
-		});
+	static async getById(id) {
+		return await getDb()
+			.collection('products')
+			.find({ _id: new mongoDb.ObjectID(id) })
+			.next();
 	}
 
-	static delete(id, cb) {
-		Product.getProductsFromFile(products => {
-			const updatedProducts = products.filter(prod => prod.id !== id);
-			fs.writeFile(Product.filePath, JSON.stringify(updatedProducts), err => {
-				console.error(err);
-			});
-			cb();
-		});
-	}
-
-	save() {
-		Product.getProductsFromFile(products => {
-			products.push(this);
-			fs.writeFile(Product.filePath, JSON.stringify(products), err => {
-				console.error(err);
-			});
-		});
+	static async deleteById(id) {
+		await getDb()
+			.collection('products')
+			.deleteOne({ _id: new mongoDb.ObjectID(id) });
 	}
 }
 
