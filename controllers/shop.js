@@ -1,87 +1,113 @@
 const Product = require('../models/product');
-const Cart = require('../models/cart');
 
-const handleGetHome = (req, res) => {
-	Product.getAllProducts(products => {
+const handleGetHome = async (req, res) => {
+	try {
+		const products = await Product.getAll();
 		res.render('shop/index', {
 			products,
-			docTitle: 'Shop',
+			docTitle: 'All Products',
 			path: '/',
 		});
-	});
+	} catch (err) {
+		console.error(err);
+	}
 };
 
-const handleGetProducts = (req, res) => {
-	Product.getAllProducts(products => {
+const handleGetProducts = async (req, res) => {
+	try {
+		const products = await Product.getAll();
 		res.render('shop/products', {
 			products,
 			docTitle: 'All Products',
 			path: '/products',
 		});
-	});
+	} catch (err) {
+		console.error(err);
+	}
 };
 
-const handleGetProduct = (req, res) => {
-	const { id } = req.params;
-	Product.findById(id, product => {
+const handleGetProduct = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const product = await Product.getById(id);
+
 		if (!product) {
 			return res.redirect('/not-found');
 		}
+
 		res.render('shop/product-detail', {
 			path: '/products',
 			docTitle: product.title,
 			product,
 		});
-	});
+	} catch (err) {
+		console.error(err);
+	}
 };
 
-const handleGetCart = (req, res) => {
-	Cart.getCart(cart => {
-		Product.getAllProducts(products => {
-			const cartProducts = products.reduce((acc, prod) => {
-				const product = cart.products.find(cartProd => cartProd.id === prod.id);
-				return product
-					? [...acc, { data: prod, quantity: product.quantity }]
-					: acc;
-			}, []);
-
-			res.render('shop/cart', {
-				path: '/cart',
-				docTitle: 'Your Cart',
-				products: cartProducts,
-			});
+const handleGetCart = async (req, res) => {
+	try {
+		const cartProducts = await req.user.getCart();
+		res.render('shop/cart', {
+			path: '/cart',
+			docTitle: 'Your Cart',
+			products: cartProducts,
 		});
-	});
+	} catch (err) {
+		console.error(err);
+	}
 };
 
-const handlePostCart = (req, res) => {
-	const { productId } = req.body;
-	Product.findById(productId, product => {
-		Cart.addProduct(productId, product.price);
+const handlePostCart = async (req, res) => {
+	try {
+		const { productId } = req.body;
+		const product = await Product.getById(productId);
+		await req.user.addToCart(product);
+
 		res.redirect('/cart');
-	});
+	} catch (err) {
+		console.error(err);
+	}
 };
 
-const handleDeleteCartItem = (req, res) => {
-	const { id } = req.body;
-	Product.findById(id, product => {
-		Cart.delete(id, product.price);
+const handleDeleteCartItem = async (req, res) => {
+	try {
+		const { id } = req.body;
+		await req.user.deleteItemFromCart(id);
 		res.redirect('/cart');
-	});
+	} catch (err) {
+		console.error(err);
+	}
 };
 
 const handleGetCheckout = (req, res) => {
-	res.render('shop/chekcout', {
-		path: '/chekcout',
-		docTitle: 'Checkout',
-	});
+	// res.render('shop/chekcout', {
+	// 	path: '/chekcout',
+	// 	docTitle: 'Checkout',
+	// });
 };
 
-const handleGetOrders = (req, res) => {
-	res.render('shop/orders', {
-		path: '/orders',
-		docTitle: 'Your Orders',
-	});
+const handleGetOrders = async (req, res) => {
+	try {
+		const orders = await req.user.getOrders();
+
+		res.render('shop/orders', {
+			path: '/orders',
+			docTitle: 'Your Orders',
+			orders,
+		});
+	} catch (err) {
+		console.error(err);
+	}
+};
+
+const handlePostOrder = async (req, res) => {
+	try {
+		await req.user.addOrder();
+		res.redirect('/orders');
+	} catch (err) {
+		console.error(err);
+	}
 };
 
 module.exports = {
@@ -93,4 +119,5 @@ module.exports = {
 	handleGetProduct,
 	handlePostCart,
 	handleDeleteCartItem,
+	handlePostOrder,
 };

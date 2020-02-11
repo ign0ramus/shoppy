@@ -9,6 +9,7 @@ const {
 	handleGetProduct,
 	handlePostCart,
 	handleDeleteCartItem,
+	handlePostOrder,
 } = require('../controllers/shop');
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.get('/cart', handleGetCart);
 router.post('/cart', handlePostCart);
 router.get('/checkout', handleGetCheckout);
 router.get('/orders', handleGetOrders);
+router.post('/create-order', handlePostOrder);
 router.get('/products/:id', handleGetProduct);
 router.post('/cart-delete-item', handleDeleteCartItem);
 

@@ -1,3 +1,4 @@
+const mongoDb = require('mongodb');
 const Product = require('../models/product');
 
 const handleGetAddProduct = (req, res) => {
@@ -8,19 +9,30 @@ const handleGetAddProduct = (req, res) => {
 	});
 };
 
-const handlePostAddProduct = (req, res) => {
-	const { title, imageUrl, description, price } = req.body;
+const handlePostAddProduct = async (req, res) => {
+	try {
+		const { title, imageUrl, description, price } = req.body;
+		const product = new Product(
+			title,
+			imageUrl,
+			price,
+			description,
+			null,
+			req.user._id
+		);
 
-	const product = new Product(title, imageUrl, description, price);
-	product.save();
-
-	res.redirect('/');
+		await product.save();
+		res.redirect('/');
+	} catch (err) {
+		console.error(err);
+	}
 };
 
-const handleGetEditProduct = (req, res) => {
-	const { id } = req.params;
+const handleGetEditProduct = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const product = await Product.getById(id);
 
-	Product.findById(id, product => {
 		if (!product) {
 			return res.redirect('/not-found');
 		}
@@ -30,29 +42,45 @@ const handleGetEditProduct = (req, res) => {
 			path: '',
 			product,
 		});
-	});
+	} catch (err) {
+		console.error(err);
+	}
 };
 
-const handlePostEditProduct = (req, res) => {
-	Product.edit(req.body);
-	res.redirect('/admin/products');
+const handlePostEditProduct = async (req, res) => {
+	try {
+		const { id, title, imageUrl, price, description } = req.body;
+		const updatedProduct = new Product(title, imageUrl, price, description, id);
+		await updatedProduct.save();
+
+		res.redirect('/admin/products');
+	} catch (err) {
+		console.error(err);
+	}
 };
 
-const handleGetProducts = (req, res) => {
-	Product.getAllProducts(products => {
+const handleGetProducts = async (req, res) => {
+	try {
+		const products = await Product.getAll();
 		res.render('admin/products', {
 			products,
 			docTitle: 'Admin Products',
 			path: '/admin/products',
 		});
-	});
+	} catch (err) {
+		console.error(err);
+	}
 };
 
-const handleDeleteProduct = (req, res) => {
-	const { id } = req.body;
-	Product.delete(id, () => {
+const handleDeleteProduct = async (req, res) => {
+	try {
+		const { id } = req.body;
+		await Product.deleteById(id);
+
 		res.redirect('/admin/products');
-	});
+	} catch (err) {
+		console.error(err);
+	}
 };
 
 module.exports = {
