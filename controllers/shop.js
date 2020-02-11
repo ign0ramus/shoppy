@@ -1,10 +1,12 @@
-const Product = require('../models/product');
+const ProductModel = require('../models/product');
+const OrderModel = require('../models/order');
 
 const handleGetHome = async (req, res) => {
 	try {
-		const products = await Product.getAll();
+		const products = await ProductModel.find();
+
 		res.render('shop/index', {
-			products,
+			products: products,
 			docTitle: 'All Products',
 			path: '/',
 		});
@@ -15,7 +17,8 @@ const handleGetHome = async (req, res) => {
 
 const handleGetProducts = async (req, res) => {
 	try {
-		const products = await Product.getAll();
+		const products = await ProductModel.find();
+
 		res.render('shop/products', {
 			products,
 			docTitle: 'All Products',
@@ -29,7 +32,7 @@ const handleGetProducts = async (req, res) => {
 const handleGetProduct = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const product = await Product.getById(id);
+		const product = await ProductModel.findById(id);
 
 		if (!product) {
 			return res.redirect('/not-found');
@@ -48,6 +51,7 @@ const handleGetProduct = async (req, res) => {
 const handleGetCart = async (req, res) => {
 	try {
 		const cartProducts = await req.user.getCart();
+
 		res.render('shop/cart', {
 			path: '/cart',
 			docTitle: 'Your Cart',
@@ -60,8 +64,8 @@ const handleGetCart = async (req, res) => {
 
 const handlePostCart = async (req, res) => {
 	try {
-		const { productId } = req.body;
-		const product = await Product.getById(productId);
+		const { id } = req.body;
+		const product = await ProductModel.findById(id);
 		await req.user.addToCart(product);
 
 		res.redirect('/cart');
@@ -73,7 +77,8 @@ const handlePostCart = async (req, res) => {
 const handleDeleteCartItem = async (req, res) => {
 	try {
 		const { id } = req.body;
-		await req.user.deleteItemFromCart(id);
+		await req.user.removeItemFromCart(id);
+
 		res.redirect('/cart');
 	} catch (err) {
 		console.error(err);
@@ -89,7 +94,7 @@ const handleGetCheckout = (req, res) => {
 
 const handleGetOrders = async (req, res) => {
 	try {
-		const orders = await req.user.getOrders();
+		const orders = await OrderModel.find({ userId: req.user });
 
 		res.render('shop/orders', {
 			path: '/orders',
@@ -103,7 +108,13 @@ const handleGetOrders = async (req, res) => {
 
 const handlePostOrder = async (req, res) => {
 	try {
-		await req.user.addOrder();
+		const products = await req.user.getCart();
+		await OrderModel.create({
+			userId: req.user,
+			products,
+		});
+		await req.user.clearCart();
+
 		res.redirect('/orders');
 	} catch (err) {
 		console.error(err);

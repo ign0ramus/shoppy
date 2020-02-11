@@ -1,5 +1,4 @@
-const mongoDb = require('mongodb');
-const Product = require('../models/product');
+const ProductModel = require('../models/product');
 
 const handleGetAddProduct = (req, res) => {
 	res.render('admin/add-or-edit-product', {
@@ -12,16 +11,14 @@ const handleGetAddProduct = (req, res) => {
 const handlePostAddProduct = async (req, res) => {
 	try {
 		const { title, imageUrl, description, price } = req.body;
-		const product = new Product(
+		await ProductModel.create({
 			title,
 			imageUrl,
 			price,
 			description,
-			null,
-			req.user._id
-		);
+			userId: req.user
+		});
 
-		await product.save();
 		res.redirect('/');
 	} catch (err) {
 		console.error(err);
@@ -31,7 +28,7 @@ const handlePostAddProduct = async (req, res) => {
 const handleGetEditProduct = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const product = await Product.getById(id);
+		const product = await ProductModel.findById(id);
 
 		if (!product) {
 			return res.redirect('/not-found');
@@ -50,8 +47,11 @@ const handleGetEditProduct = async (req, res) => {
 const handlePostEditProduct = async (req, res) => {
 	try {
 		const { id, title, imageUrl, price, description } = req.body;
-		const updatedProduct = new Product(title, imageUrl, price, description, id);
-		await updatedProduct.save();
+
+		await ProductModel.findOneAndUpdate(
+			{ _id: id },
+			{ title, imageUrl, price, description }
+		);
 
 		res.redirect('/admin/products');
 	} catch (err) {
@@ -61,7 +61,8 @@ const handlePostEditProduct = async (req, res) => {
 
 const handleGetProducts = async (req, res) => {
 	try {
-		const products = await Product.getAll();
+		const products = await ProductModel.find();
+
 		res.render('admin/products', {
 			products,
 			docTitle: 'Admin Products',
@@ -75,7 +76,7 @@ const handleGetProducts = async (req, res) => {
 const handleDeleteProduct = async (req, res) => {
 	try {
 		const { id } = req.body;
-		await Product.deleteById(id);
+		await ProductModel.findByIdAndRemove(id);
 
 		res.redirect('/admin/products');
 	} catch (err) {
