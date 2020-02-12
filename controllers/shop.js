@@ -10,7 +10,6 @@ const handleGetHome = async (req, res) => {
 			products: products,
 			docTitle: 'All Products',
 			path: '/',
-			isAuthenticated: req.session.userId,
 		});
 	} catch (err) {
 		console.error(err);
@@ -25,7 +24,6 @@ const handleGetProducts = async (req, res) => {
 			products,
 			docTitle: 'All Products',
 			path: '/products',
-			isAuthenticated: req.session.userId,
 		});
 	} catch (err) {
 		console.error(err);
@@ -45,7 +43,6 @@ const handleGetProduct = async (req, res) => {
 			path: '/products',
 			docTitle: product.title,
 			product,
-			isAuthenticated: req.session.userId,
 		});
 	} catch (err) {
 		console.error(err);
@@ -61,7 +58,6 @@ const handleGetCart = async (req, res) => {
 			path: '/cart',
 			docTitle: 'Your Cart',
 			products: cartProducts,
-			isAuthenticated: req.session.userId,
 		});
 	} catch (err) {
 		console.error(err);
@@ -112,7 +108,6 @@ const handleGetOrders = async (req, res) => {
 			path: '/orders',
 			docTitle: 'Your Orders',
 			orders,
-			isAuthenticated: req.session.userId,
 		});
 	} catch (err) {
 		console.error(err);

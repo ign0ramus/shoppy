@@ -2,10 +2,11 @@ const UserModel = require('../models/user');
 const bcrypt = require('bcryptjs');
 
 const handleGetLogin = (req, res) => {
+	const [error] = req.flash('error');
 	res.render('auth/login', {
 		path: '/login',
 		docTitle: 'Login',
-		isAuthenticated: false,
+		error,
 	});
 };
 
@@ -13,9 +14,11 @@ const handlePostLogin = async (req, res) => {
 	try {
 		const { email, password } = req.body;
 		const user = await UserModel.findOne({ email });
-		const isCredsMatch = user && (await bcrypt.compare(password, user.password));
+		const isCredsMatch =
+			user && (await bcrypt.compare(password, user.password));
 		if (!isCredsMatch) {
-			return res.redirect('/signup');
+			req.flash('error', 'Invalid email or password');
+			return res.redirect('/login');
 		}
 
 		req.session.userId = user.id;
@@ -40,10 +43,11 @@ const handlePostLogout = (req, res) => {
 };
 
 const handleGetSignup = (req, res) => {
+	const [error] = req.flash('error');
 	res.render('auth/signup', {
 		path: '/signup',
 		docTitle: 'Signup',
-		isAuthenticated: false,
+		error,
 	});
 };
 
@@ -53,8 +57,10 @@ const handlePostSignup = async (req, res) => {
 		const isUserExists = await UserModel.findOne({ email });
 
 		if (isUserExists) {
-			return res.redirect('/login');
+			req.flash('error', 'User with this email exists');
+			return res.redirect('/signup');
 		}
+
 		const hashPassword = await bcrypt.hash(password, 12);
 		await UserModel.create({ email, password: hashPassword });
 
