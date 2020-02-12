@@ -4,8 +4,10 @@ const express = require('express');
 const connectToMongoose = require('./database/db');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 const { handleGet404 } = require('./controllers/error.js');
 const UserModel = require('./models/user');
+
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -19,8 +21,9 @@ app.use(async (req, res, next) => {
 	next();
 });
 
-app.use(shopRoutes);
 app.use('/admin', adminRoutes);
+app.use(shopRoutes);
+app.use(authRoutes);
 app.use(handleGet404);
 
 const run = async () => {
