@@ -32,8 +32,20 @@ const handlePostLogout = (req, res) => {
 	});
 };
 
+const handleGetSignup = (req, res) => {
+	res.render('auth/signup', {
+		path: '/signup',
+		docTitle: 'Signup',
+		isAuthenticated: false,
+	});
+};
+
+const handlePostSignup = (req, res) => {};
+
 module.exports = {
 	handleGetLogin,
 	handlePostLogin,
 	handlePostLogout,
+	handleGetSignup,
+	handlePostSignup,
 };
