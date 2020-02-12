@@ -5,6 +5,7 @@ const handleGetAddProduct = (req, res) => {
 		docTitle: 'Add Products',
 		path: '/admin/add-product',
 		product: null,
+		isAuthenticated: req.session.userId,
 	});
 };
 
@@ -16,7 +17,7 @@ const handlePostAddProduct = async (req, res) => {
 			imageUrl,
 			price,
 			description,
-			userId: req.user
+			userId: req.session.userId,
 		});
 
 		res.redirect('/');
@@ -38,6 +39,7 @@ const handleGetEditProduct = async (req, res) => {
 			docTitle: 'Edit Products',
 			path: '',
 			product,
+			isAuthenticated: req.session.userId,
 		});
 	} catch (err) {
 		console.error(err);
@@ -67,6 +69,7 @@ const handleGetProducts = async (req, res) => {
 			products,
 			docTitle: 'Admin Products',
 			path: '/admin/products',
+			isAuthenticated: req.session.userId,
 		});
 	} catch (err) {
 		console.error(err);

@@ -1,4 +1,5 @@
 const ProductModel = require('../models/product');
+const UserModel = require('../models/user');
 const OrderModel = require('../models/order');
 
 const handleGetHome = async (req, res) => {
@@ -9,6 +10,7 @@ const handleGetHome = async (req, res) => {
 			products: products,
 			docTitle: 'All Products',
 			path: '/',
+			isAuthenticated: req.session.userId,
 		});
 	} catch (err) {
 		console.error(err);
@@ -23,6 +25,7 @@ const handleGetProducts = async (req, res) => {
 			products,
 			docTitle: 'All Products',
 			path: '/products',
+			isAuthenticated: req.session.userId,
 		});
 	} catch (err) {
 		console.error(err);
@@ -42,6 +45,7 @@ const handleGetProduct = async (req, res) => {
 			path: '/products',
 			docTitle: product.title,
 			product,
+			isAuthenticated: req.session.userId,
 		});
 	} catch (err) {
 		console.error(err);
@@ -50,12 +54,14 @@ const handleGetProduct = async (req, res) => {
 
 const handleGetCart = async (req, res) => {
 	try {
-		const cartProducts = await req.user.getCart();
+		const user = await UserModel.findById(req.session.userId);
+		const cartProducts = await user.getCart();
 
 		res.render('shop/cart', {
 			path: '/cart',
 			docTitle: 'Your Cart',
 			products: cartProducts,
+			isAuthenticated: req.session.userId,
 		});
 	} catch (err) {
 		console.error(err);
@@ -65,8 +71,12 @@ const handleGetCart = async (req, res) => {
 const handlePostCart = async (req, res) => {
 	try {
 		const { id } = req.body;
-		const product = await ProductModel.findById(id);
-		await req.user.addToCart(product);
+		const [product, user] = await Promise.all([
+			ProductModel.findById(id),
+			UserModel.findById(req.session.userId),
+		]);
+
+		await user.addToCart(product);
 
 		res.redirect('/cart');
 	} catch (err) {
@@ -77,7 +87,9 @@ const handlePostCart = async (req, res) => {
 const handleDeleteCartItem = async (req, res) => {
 	try {
 		const { id } = req.body;
-		await req.user.removeItemFromCart(id);
+		const user = await UserModel.findById(req.session.userId);
+
+		await user.removeItemFromCart(id);
 
 		res.redirect('/cart');
 	} catch (err) {
@@ -94,12 +106,13 @@ const handleGetCheckout = (req, res) => {
 
 const handleGetOrders = async (req, res) => {
 	try {
-		const orders = await OrderModel.find({ userId: req.user });
+		const orders = await OrderModel.find({ userId: req.session.userId });
 
 		res.render('shop/orders', {
 			path: '/orders',
 			docTitle: 'Your Orders',
 			orders,
+			isAuthenticated: req.session.userId,
 		});
 	} catch (err) {
 		console.error(err);
@@ -108,12 +121,13 @@ const handleGetOrders = async (req, res) => {
 
 const handlePostOrder = async (req, res) => {
 	try {
-		const products = await req.user.getCart();
+		const user = await UserModel.findById(req.session.userId);
+		const products = await user.getCart();
 		await OrderModel.create({
-			userId: req.user,
+			userId: req.session.userId,
 			products,
 		});
-		await req.user.clearCart();
+		await user.clearCart();
 
 		res.redirect('/orders');
 	} catch (err) {

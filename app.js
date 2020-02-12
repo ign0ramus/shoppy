@@ -1,5 +1,7 @@
 const path = require('path');
 const express = require('express');
+const session = require('express-session');
+const MongoDbStore = require('connect-mongodb-session')(session);
 
 const connectToMongoose = require('./database/db');
 const adminRoutes = require('./routes/admin');
@@ -9,17 +11,24 @@ const { handleGet404 } = require('./controllers/error.js');
 const UserModel = require('./models/user');
 
 const app = express();
+const store = new MongoDbStore({
+	uri: process.env.DB_HOST,
+	collection: 'sessions',
+});
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.use(async (req, res, next) => {
-	req.user = await UserModel.findOne({ role: 'admin' });
-	next();
-});
+app.use(
+	session({
+		secret: 'my $ecr3t',
+		resave: false,
+		saveUninitialized: false,
+		store,
+	})
+);
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
