@@ -11,17 +11,18 @@ const {
 	handleDeleteCartItem,
 	handlePostOrder,
 } = require('../controllers/shop');
+const isAuth = require('../middleware/isAuth');
 
 const router = express.Router();
 
 router.get('/', handleGetHome);
 router.get('/products', handleGetProducts);
-router.get('/cart', handleGetCart);
-router.post('/cart', handlePostCart);
-router.get('/checkout', handleGetCheckout);
-router.get('/orders', handleGetOrders);
-router.post('/create-order', handlePostOrder);
+router.get('/cart', isAuth, handleGetCart);
+router.post('/cart', isAuth, handlePostCart);
+router.get('/checkout', isAuth, handleGetCheckout);
+router.get('/orders', isAuth, handleGetOrders);
+router.post('/create-order', isAuth, handlePostOrder);
 router.get('/products/:id', handleGetProduct);
-router.post('/cart-delete-item', handleDeleteCartItem);
+router.post('/cart-delete-item', isAuth, handleDeleteCartItem);
 
 module.exports = router;

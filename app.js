@@ -36,10 +36,14 @@ app.use(authRoutes);
 app.use(handleGet404);
 
 const run = async () => {
-	await connectToMongoose();
-	app.listen(3000, () => {
-		console.log('App is running on port 3000');
-	});
+	try {
+		await connectToMongoose();
+		app.listen(3000, () => {
+			console.log('App is running on port 3000');
+		});
+	} catch (err) {
+		console.error(err);
+	}
 };
 
 run();
