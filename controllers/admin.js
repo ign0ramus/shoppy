@@ -49,7 +49,7 @@ const handlePostEditProduct = async (req, res) => {
 		const { id, title, imageUrl, price, description } = req.body;
 
 		await ProductModel.findOneAndUpdate(
-			{ _id: id },
+			{ _id: id, userId: req.session.userId },
 			{ title, imageUrl, price, description }
 		);
 
@@ -61,7 +61,7 @@ const handlePostEditProduct = async (req, res) => {
 
 const handleGetProducts = async (req, res) => {
 	try {
-		const products = await ProductModel.find();
+		const products = await ProductModel.find({ userId: req.session.userId });
 
 		res.render('admin/products', {
 			products,
@@ -76,7 +76,10 @@ const handleGetProducts = async (req, res) => {
 const handleDeleteProduct = async (req, res) => {
 	try {
 		const { id } = req.body;
-		await ProductModel.findByIdAndRemove(id);
+		await ProductModel.findOneAndDelete({
+			_id: id,
+			userId: req.session.userId,
+		});
 
 		res.redirect('/admin/products');
 	} catch (err) {
