@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const { validationResult } = require('express-validator');
 const sgMail = require('@sendgrid/mail');
 const crypto = require('crypto');
 
@@ -6,6 +7,16 @@ const UserModel = require('../models/user');
 const ResetTokenModel = require('../models/resetToken');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+const addUserIdToSession = (req, res, userId) => {
+	req.session.userId = userId;
+	req.session.save(err => {
+		if (err) {
+			console.error(err);
+		}
+		res.redirect('/');
+	});
+};
 
 const handleGetLogin = (req, res) => {
 	const [error] = req.flash('error');
@@ -27,13 +38,7 @@ const handlePostLogin = async (req, res) => {
 			return res.redirect('/login');
 		}
 
-		req.session.userId = user.id;
-		req.session.save(err => {
-			if (err) {
-				console.error(err);
-			}
-			res.redirect('/');
-		});
+		addUserIdToSession(req, res, user.id);
 	} catch (err) {
 		console.error(err);
 	}
@@ -49,28 +54,32 @@ const handlePostLogout = (req, res) => {
 };
 
 const handleGetSignup = (req, res) => {
-	const [error] = req.flash('error');
 	res.render('auth/signup', {
 		path: '/signup',
 		docTitle: 'Signup',
-		error,
+		error: null,
+		oldInput: null,
 	});
 };
 
 const handlePostSignup = async (req, res) => {
 	try {
 		const { email, password } = req.body;
-		const isUserExists = await UserModel.findOne({ email });
 
-		if (isUserExists) {
-			req.flash('error', 'User with this email exists');
-			return res.redirect('/signup');
+		const errors = validationResult(req).formatWith(({ msg }) => msg);
+		if (!errors.isEmpty()) {
+			return res.status(422).render('auth/signup', {
+				path: '/signup',
+				docTitle: 'Signup',
+				error: errors.array(),
+				oldInput: { email, password },
+			});
 		}
 
 		const hashPassword = await bcrypt.hash(password, 12);
-		await UserModel.create({ email, password: hashPassword });
+		const user = await UserModel.create({ email, password: hashPassword });
 
-		await sgMail.send({
+		sgMail.send({
 			to: email,
 			from: 'ign0ramus.github.io@shoppy.com',
 			subject: 'Successfull sign up',
@@ -81,7 +90,7 @@ const handlePostSignup = async (req, res) => {
 			`,
 		});
 
-		res.redirect('/login');
+		addUserIdToSession(req, res, user.id);
 	} catch (err) {
 		console.error(err);
 	}
@@ -98,7 +107,7 @@ const handleGetReset = (req, res) => {
 	});
 };
 
-const handlePostRequest = (req, res) => {
+const handlePostReset = (req, res) => {
 	crypto.randomBytes(32, async (err, buffer) => {
 		if (err) {
 			console.error(err);
@@ -170,12 +179,12 @@ const handlePostNewPassword = async (req, res) => {
 			ResetTokenModel.findOneAndDelete({ value: token }),
 		]);
 
-		await UserModel.findOneAndUpdate(
+		const user = await UserModel.findOneAndUpdate(
 			{ _id: userId },
 			{ password: hashPassword }
 		);
 
-		res.redirect('/login');
+		addUserIdToSession(req, res, user.id);
 	} catch (err) {
 		console.error(err);
 	}
@@ -188,7 +197,7 @@ module.exports = {
 	handleGetSignup,
 	handlePostSignup,
 	handleGetReset,
-	handlePostRequest,
+	handlePostReset,
 	handleGetNewPassword,
 	handlePostNewPassword,
 };

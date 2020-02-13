@@ -238,14 +238,14 @@ form {
 	border: 1px solid #4771fa;
 	padding: 0.5rem;
 	border-radius: 3px;
-    background: #b9c9ff;
-    text-align: center;
+	background: #b9c9ff;
+	text-align: center;
 }
 
 .user-message--error {
-    border-color: red;
-    background: #ffb0b0;
-    color: red;
+	border-color: red;
+	background: #ffb0b0;
+	color: red;
 }
 
 @media (min-width: 768px) {

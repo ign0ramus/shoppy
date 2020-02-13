@@ -1,3 +1,5 @@
+const { validationResult } = require('express-validator');
+
 const ProductModel = require('../models/product');
 
 const handleGetAddProduct = (req, res) => {
@@ -5,12 +7,24 @@ const handleGetAddProduct = (req, res) => {
 		docTitle: 'Add Products',
 		path: '/admin/add-product',
 		product: null,
+		error: null,
 	});
 };
 
 const handlePostAddProduct = async (req, res) => {
 	try {
 		const { title, imageUrl, description, price } = req.body;
+
+		const errors = validationResult(req).formatWith(({ msg }) => msg);
+		if (!errors.isEmpty()) {
+			return res.status(422).render('admin/add-or-edit-product', {
+				docTitle: 'Add Products',
+				path: '/admin/add-product',
+				product: { title, imageUrl, price, description },
+				error: errors.array(),
+			});
+		}
+
 		await ProductModel.create({
 			title,
 			imageUrl,
@@ -36,8 +50,9 @@ const handleGetEditProduct = async (req, res) => {
 
 		res.render('admin/add-or-edit-product', {
 			docTitle: 'Edit Products',
-			path: '',
+			path: '/admin/edit-product',
 			product,
+			error: null,
 		});
 	} catch (err) {
 		console.error(err);
@@ -47,6 +62,15 @@ const handleGetEditProduct = async (req, res) => {
 const handlePostEditProduct = async (req, res) => {
 	try {
 		const { id, title, imageUrl, price, description } = req.body;
+		const errors = validationResult(req).formatWith(({ msg }) => msg);
+		if (!errors.isEmpty()) {
+			return res.status(422).render('admin/add-or-edit-product', {
+				docTitle: 'Edit Products',
+				path: '/admin/edit-product',
+				product: { title, imageUrl, price, description },
+				error: errors.array(),
+			});
+		}
 
 		await ProductModel.findOneAndUpdate(
 			{ _id: id, userId: req.session.userId },
