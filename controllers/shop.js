@@ -2,7 +2,7 @@ const ProductModel = require('../models/product');
 const UserModel = require('../models/user');
 const OrderModel = require('../models/order');
 
-const handleGetHome = async (req, res) => {
+const handleGetHome = async (req, res, next) => {
 	try {
 		const products = await ProductModel.find();
 
@@ -12,11 +12,11 @@ const handleGetHome = async (req, res) => {
 			path: '/',
 		});
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handleGetProducts = async (req, res) => {
+const handleGetProducts = async (req, res, next) => {
 	try {
 		const products = await ProductModel.find();
 
@@ -26,11 +26,11 @@ const handleGetProducts = async (req, res) => {
 			path: '/products',
 		});
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handleGetProduct = async (req, res) => {
+const handleGetProduct = async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const product = await ProductModel.findById(id);
@@ -45,11 +45,11 @@ const handleGetProduct = async (req, res) => {
 			product,
 		});
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handleGetCart = async (req, res) => {
+const handleGetCart = async (req, res, next) => {
 	try {
 		const user = await UserModel.findById(req.session.userId);
 		const cartProducts = await user.getCart();
@@ -60,11 +60,11 @@ const handleGetCart = async (req, res) => {
 			products: cartProducts,
 		});
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handlePostCart = async (req, res) => {
+const handlePostCart = async (req, res, next) => {
 	try {
 		const { id } = req.body;
 		const [product, user] = await Promise.all([
@@ -76,11 +76,11 @@ const handlePostCart = async (req, res) => {
 
 		res.redirect('/cart');
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handleDeleteCartItem = async (req, res) => {
+const handleDeleteCartItem = async (req, res, next) => {
 	try {
 		const { id } = req.body;
 		const user = await UserModel.findById(req.session.userId);
@@ -89,18 +89,18 @@ const handleDeleteCartItem = async (req, res) => {
 
 		res.redirect('/cart');
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handleGetCheckout = (req, res) => {
+const handleGetCheckout = (req, res, next) => {
 	// res.render('shop/chekcout', {
 	// 	path: '/chekcout',
 	// 	docTitle: 'Checkout',
 	// });
 };
 
-const handleGetOrders = async (req, res) => {
+const handleGetOrders = async (req, res, next) => {
 	try {
 		const orders = await OrderModel.find({ userId: req.session.userId });
 
@@ -110,11 +110,11 @@ const handleGetOrders = async (req, res) => {
 			orders,
 		});
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handlePostOrder = async (req, res) => {
+const handlePostOrder = async (req, res, next) => {
 	try {
 		const user = await UserModel.findById(req.session.userId);
 		const products = await user.getCart();
@@ -126,7 +126,7 @@ const handlePostOrder = async (req, res) => {
 
 		res.redirect('/orders');
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 

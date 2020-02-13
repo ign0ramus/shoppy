@@ -2,7 +2,7 @@ const { validationResult } = require('express-validator');
 
 const ProductModel = require('../models/product');
 
-const handleGetAddProduct = (req, res) => {
+const handleGetAddProduct = (req, res, next) => {
 	res.render('admin/add-or-edit-product', {
 		docTitle: 'Add Products',
 		path: '/admin/add-product',
@@ -11,7 +11,7 @@ const handleGetAddProduct = (req, res) => {
 	});
 };
 
-const handlePostAddProduct = async (req, res) => {
+const handlePostAddProduct = async (req, res, next) => {
 	try {
 		const { title, imageUrl, description, price } = req.body;
 
@@ -35,11 +35,11 @@ const handlePostAddProduct = async (req, res) => {
 
 		res.redirect('/');
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handleGetEditProduct = async (req, res) => {
+const handleGetEditProduct = async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const product = await ProductModel.findById(id);
@@ -55,11 +55,11 @@ const handleGetEditProduct = async (req, res) => {
 			error: null,
 		});
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handlePostEditProduct = async (req, res) => {
+const handlePostEditProduct = async (req, res, next) => {
 	try {
 		const { id, title, imageUrl, price, description } = req.body;
 		const errors = validationResult(req).formatWith(({ msg }) => msg);
@@ -79,11 +79,11 @@ const handlePostEditProduct = async (req, res) => {
 
 		res.redirect('/admin/products');
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handleGetProducts = async (req, res) => {
+const handleGetProducts = async (req, res, next) => {
 	try {
 		const products = await ProductModel.find({ userId: req.session.userId });
 
@@ -93,11 +93,11 @@ const handleGetProducts = async (req, res) => {
 			path: '/admin/products',
 		});
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handleDeleteProduct = async (req, res) => {
+const handleDeleteProduct = async (req, res, next) => {
 	try {
 		const { id } = req.body;
 		await ProductModel.findOneAndDelete({
@@ -107,7 +107,7 @@ const handleDeleteProduct = async (req, res) => {
 
 		res.redirect('/admin/products');
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 

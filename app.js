@@ -46,6 +46,13 @@ app.use(shopRoutes);
 app.use(authRoutes);
 app.use(handleGet404);
 
+app.use((error, req, res, next) => {
+	res.render('500', {
+		docTitle: 'Error occured!',
+		path: ''
+	});
+});
+
 const run = async () => {
 	try {
 		await connectToMongoose();

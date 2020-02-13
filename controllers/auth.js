@@ -12,13 +12,13 @@ const addUserIdToSession = (req, res, userId) => {
 	req.session.userId = userId;
 	req.session.save(err => {
 		if (err) {
-			console.error(err);
+			next(err);
 		}
 		res.redirect('/');
 	});
 };
 
-const handleGetLogin = (req, res) => {
+const handleGetLogin = (req, res, next) => {
 	const [error] = req.flash('error');
 	res.render('auth/login', {
 		path: '/login',
@@ -27,7 +27,7 @@ const handleGetLogin = (req, res) => {
 	});
 };
 
-const handlePostLogin = async (req, res) => {
+const handlePostLogin = async (req, res, next) => {
 	try {
 		const { email, password } = req.body;
 		const user = await UserModel.findOne({ email });
@@ -40,20 +40,20 @@ const handlePostLogin = async (req, res) => {
 
 		addUserIdToSession(req, res, user.id);
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handlePostLogout = (req, res) => {
+const handlePostLogout = (req, res, next) => {
 	req.session.destroy(err => {
 		if (err) {
-			console.error(err);
+			return next(err);
 		}
 		res.redirect('/');
 	});
 };
 
-const handleGetSignup = (req, res) => {
+const handleGetSignup = (req, res, next) => {
 	res.render('auth/signup', {
 		path: '/signup',
 		docTitle: 'Signup',
@@ -62,7 +62,7 @@ const handleGetSignup = (req, res) => {
 	});
 };
 
-const handlePostSignup = async (req, res) => {
+const handlePostSignup = async (req, res, next) => {
 	try {
 		const { email, password } = req.body;
 
@@ -92,11 +92,11 @@ const handlePostSignup = async (req, res) => {
 
 		addUserIdToSession(req, res, user.id);
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handleGetReset = (req, res) => {
+const handleGetReset = (req, res, next) => {
 	const [error] = req.flash('error');
 	const [message] = req.flash('message');
 	res.render('auth/reset', {
@@ -107,11 +107,10 @@ const handleGetReset = (req, res) => {
 	});
 };
 
-const handlePostReset = (req, res) => {
+const handlePostReset = (req, res, next) => {
 	crypto.randomBytes(32, async (err, buffer) => {
 		if (err) {
-			console.error(err);
-			res.redirect('/reset');
+			return next(err);
 		}
 		const token = buffer.toString('hex');
 		try {
@@ -142,12 +141,12 @@ const handlePostReset = (req, res) => {
 			req.flash('message', 'To continue password resetting check your email');
 			res.redirect('/reset');
 		} catch (error) {
-			console.error(error);
+			next(error);
 		}
 	});
 };
 
-const handleGetNewPassword = async (req, res) => {
+const handleGetNewPassword = async (req, res, next) => {
 	try {
 		const token = await ResetTokenModel.findOne({
 			value: req.params.token,
@@ -167,11 +166,11 @@ const handleGetNewPassword = async (req, res) => {
 
 		res.redirect('/');
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
-const handlePostNewPassword = async (req, res) => {
+const handlePostNewPassword = async (req, res, next) => {
 	try {
 		const { password, userId, token } = req.body;
 		const [hashPassword] = await Promise.all([
@@ -186,7 +185,7 @@ const handlePostNewPassword = async (req, res) => {
 
 		addUserIdToSession(req, res, user.id);
 	} catch (err) {
-		console.error(err);
+		next(err);
 	}
 };
 
