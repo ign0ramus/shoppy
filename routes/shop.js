@@ -10,6 +10,7 @@ const {
 	handlePostCart,
 	handleDeleteCartItem,
 	handlePostOrder,
+	handleGetOrderInvoice,
 } = require('../controllers/shop');
 const isAuth = require('../middleware/isAuth');
 
@@ -24,5 +25,6 @@ router.get('/orders', isAuth, handleGetOrders);
 router.post('/create-order', isAuth, handlePostOrder);
 router.get('/products/:id', handleGetProduct);
 router.post('/cart-delete-item', isAuth, handleDeleteCartItem);
+router.get('/orders/:orderId', isAuth, handleGetOrderInvoice);
 
 module.exports = router;

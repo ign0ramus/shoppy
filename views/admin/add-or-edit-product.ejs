@@ -8,26 +8,28 @@
 
     <main>
             <% if (error) {%>
-                <% if (Array.isArray(error)) { %>
-                    <div class="user-message user-message--error">
-                        <% error.forEach(err => { %>
-                            <div>
-                                <%= err %>
-                            </div>
-                        <% }); %>
-                <% } else { %>
-                    <%= error %>
-                <% } %>
-                    </div>
+                <div class="user-message user-message--error">
+                    <% if (Array.isArray(error)) { %>
+                            <% error.forEach(err => { %>
+                                <div>
+                                    <%= err %>
+                                </div>
+                            <% }); %>
+                    <% } else { %>
+                        <%= error %>
+                    <% } %>
+                </div>
             <% } %>
-        <form class="product-form" action="<%= path %>" method="POST">
+        <form class="product-form" action="<%= path %>" method="POST" enctype="multipart/form-data">
             <div class="form-control">
                 <label for="title">Title</label>
                 <input type="text" value="<%= product ? product.title : '' %>" name="title" id="title">
             </div>
             <div class="form-control">
-                <label for="imageUrl">Image Url</label>
-                <input type="text" value="<%= product ? product.imageUrl : '' %>" name="imageUrl" id="imageUrl">
+                <!-- <label for="imageUrl">Image Url</label>
+                <input type="text" value="<%= product ? product.imageUrl : '' %>" name="imageUrl" id="imageUrl"> -->
+                <label for="image">Image</label>
+                <input accept="image/*" type="file" value="" name="image" id="image">
             </div>
             <div class="form-control">
                 <label for="price">Price</label>

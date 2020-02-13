@@ -13,21 +13,22 @@ const handleGetAddProduct = (req, res, next) => {
 
 const handlePostAddProduct = async (req, res, next) => {
 	try {
-		const { title, imageUrl, description, price } = req.body;
-
+		const { title, description, price } = req.body;
 		const errors = validationResult(req).formatWith(({ msg }) => msg);
-		if (!errors.isEmpty()) {
+
+		if (!errors.isEmpty() || req.fileTypeError) {
 			return res.status(422).render('admin/add-or-edit-product', {
 				docTitle: 'Add Products',
 				path: '/admin/add-product',
-				product: { title, imageUrl, price, description },
-				error: errors.array(),
+				product: { title, price, description },
+				error: req.fileTypeError || errors.array(),
 			});
 		}
 
+		const image = req.file;
 		await ProductModel.create({
 			title,
-			imageUrl,
+			imageUrl: image.path,
 			price,
 			description,
 			userId: req.session.userId,
@@ -42,7 +43,10 @@ const handlePostAddProduct = async (req, res, next) => {
 const handleGetEditProduct = async (req, res, next) => {
 	try {
 		const { id } = req.params;
-		const product = await ProductModel.findById(id);
+		const product = await ProductModel.findOne({
+			_id: id,
+			userId: req.session.userId,
+		});
 
 		if (!product) {
 			return res.redirect('/not-found');
@@ -61,21 +65,33 @@ const handleGetEditProduct = async (req, res, next) => {
 
 const handlePostEditProduct = async (req, res, next) => {
 	try {
-		const { id, title, imageUrl, price, description } = req.body;
+		const { id, title, price, description } = req.body;
+		const product = await ProductModel.findOne({
+			_id: id,
+			userId: req.session.userId,
+		});
+
+		if (!product) {
+			res.status(401);
+		}
+
 		const errors = validationResult(req).formatWith(({ msg }) => msg);
-		if (!errors.isEmpty()) {
+		if (!errors.isEmpty() || req.fileTypeError) {
 			return res.status(422).render('admin/add-or-edit-product', {
 				docTitle: 'Edit Products',
 				path: '/admin/edit-product',
-				product: { title, imageUrl, price, description },
-				error: errors.array(),
+				product: { id, title, price, description },
+				error: req.fileTypeError || errors.array(),
 			});
 		}
 
-		await ProductModel.findOneAndUpdate(
-			{ _id: id, userId: req.session.userId },
-			{ title, imageUrl, price, description }
-		);
+		const image = req.file;
+		const productData = { title, price, description };
+		if (image) {
+			productData.imageUrl = image.path;
+		}
+
+		await product.updateOne(productData);
 
 		res.redirect('/admin/products');
 	} catch (err) {

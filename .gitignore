@@ -11,6 +11,7 @@ coverage
 /data
 
 nodemon.json
+/images
 
 # misc
 .DS_Store
