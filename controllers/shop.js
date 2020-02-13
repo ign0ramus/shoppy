@@ -1,3 +1,7 @@
+const fs = require('fs');
+const path = require('path');
+const PDFDocument = require('pdfkit');
+
 const ProductModel = require('../models/product');
 const UserModel = require('../models/user');
 const OrderModel = require('../models/order');
@@ -130,6 +134,45 @@ const handlePostOrder = async (req, res, next) => {
 	}
 };
 
+const handleGetOrderInvoice = async (req, res, next) => {
+	const { orderId } = req.params;
+
+	const order = await OrderModel.findOne({
+		_id: orderId,
+		userId: req.session.userId,
+	});
+
+	if (!order) {
+		return res.redirect('/not-found');
+	}
+
+	const invoiceName = `invoice-${order.id}.pdf`;
+	const invoicePath = path.join('data', invoiceName);
+
+	res.setHeader('Content-Type', 'application/pdf');
+	res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`);
+
+	const pdfDoc = new PDFDocument();
+	pdfDoc.pipe(fs.createWriteStream(invoicePath));
+	pdfDoc.pipe(res);
+
+	pdfDoc.fontSize(26).text('Invoice', { underline: true });
+	pdfDoc.text('-------------------');
+	order.products.forEach(prod => {
+		pdfDoc
+			.fontSize(16)
+			.text(`${prod.title} - ${prod.quantity} x $${prod.price}`);
+	});
+	pdfDoc.text('-------------------');
+	const totalPrice = order.products.reduce(
+		(total, prod) => total + prod.quantity * prod.price,
+		0
+	);
+	pdfDoc.fontSize(20).text(`Total: $${totalPrice}`);
+
+	pdfDoc.end();
+};
+
 module.exports = {
 	handleGetProducts,
 	handleGetHome,
@@ -140,4 +183,5 @@ module.exports = {
 	handlePostCart,
 	handleDeleteCartItem,
 	handlePostOrder,
+	handleGetOrderInvoice,
 };
