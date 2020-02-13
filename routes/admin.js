@@ -22,6 +22,9 @@ router.post(
 			.isLength({ min: 3 })
 			.trim(),
 		body('price', 'Price should be floating number').isFloat(),
+		check('file', 'Image is required').custom((value, { req }) =>
+			Boolean(req.file)
+		),
 		body(
 			'description',
 			'Description length minimum 5 characters and maximum 400 characters'

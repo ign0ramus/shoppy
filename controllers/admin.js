@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 
 const ProductModel = require('../models/product');
+const { deleteFile } = require('../utils/file');
 
 const handleGetAddProduct = (req, res, next) => {
 	res.render('admin/add-or-edit-product', {
@@ -15,6 +16,7 @@ const handlePostAddProduct = async (req, res, next) => {
 	try {
 		const { title, description, price } = req.body;
 		const errors = validationResult(req).formatWith(({ msg }) => msg);
+		const image = req.file;
 
 		if (!errors.isEmpty() || req.fileTypeError) {
 			return res.status(422).render('admin/add-or-edit-product', {
@@ -25,7 +27,6 @@ const handlePostAddProduct = async (req, res, next) => {
 			});
 		}
 
-		const image = req.file;
 		await ProductModel.create({
 			title,
 			imageUrl: image.path,
@@ -88,6 +89,7 @@ const handlePostEditProduct = async (req, res, next) => {
 		const image = req.file;
 		const productData = { title, price, description };
 		if (image) {
+			await deleteFile(product.imageUrl);
 			productData.imageUrl = image.path;
 		}
 
@@ -116,10 +118,16 @@ const handleGetProducts = async (req, res, next) => {
 const handleDeleteProduct = async (req, res, next) => {
 	try {
 		const { id } = req.body;
-		await ProductModel.findOneAndDelete({
+		const product = await ProductModel.findOne({
 			_id: id,
 			userId: req.session.userId,
 		});
+
+		if (!product) {
+			return res.status(401);
+		}
+
+		await Promise.all([deleteFile(product.imageUrl), product.deleteOne()]);
 
 		res.redirect('/admin/products');
 	} catch (err) {
