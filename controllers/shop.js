@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const PDFDocument = require('pdfkit');
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
 
 const ProductModel = require('../models/product');
 const UserModel = require('../models/user');
@@ -125,11 +126,44 @@ const handleDeleteCartItem = async (req, res, next) => {
 	}
 };
 
-const handleGetCheckout = (req, res, next) => {
-	// res.render('shop/chekcout', {
-	// 	path: '/chekcout',
-	// 	docTitle: 'Checkout',
-	// });
+const handleGetCheckout = async (req, res, next) => {
+	try {
+		const user = await UserModel.findById(req.session.userId);
+		const cartProducts = await user.getCart();
+		const total = cartProducts.reduce(
+			(acc, prod) => acc + prod.price * prod.quantity,
+			0
+		);
+
+		const session = await stripe.checkout.sessions.create({
+			payment_method_types: ['card'],
+			line_items: cartProducts.map(prod => ({
+				name: prod.title,
+				description: prod.description,
+				amount: prod.price * 100,
+				currency: 'usd',
+				quantity: prod.quantity,
+			})),
+			success_url: `${req.protocol}://${req.get('host')}/checkout/success`,
+			cancel_url: `${req.protocol}://${req.get('host')}/checkout/cancel`,
+		});
+		const [error] = req.flash('error');
+		res.render('shop/checkout', {
+			path: '/checkout',
+			docTitle: 'Your Cart',
+			products: cartProducts,
+			total,
+			sessionId: session.id,
+			error,
+		});
+	} catch (err) {
+		next(err);
+	}
+};
+
+const handleGetCheckoutCancel = (req, res) => {
+	req.flash('error', 'Error occured. Checkout process canceled');
+	return res.redirect('/checkout');
 };
 
 const handleGetOrders = async (req, res, next) => {
@@ -146,7 +180,7 @@ const handleGetOrders = async (req, res, next) => {
 	}
 };
 
-const handlePostOrder = async (req, res, next) => {
+const handleGetCheckoutSuccess = async (req, res, next) => {
 	try {
 		const user = await UserModel.findById(req.session.userId);
 		const products = await user.getCart();
@@ -210,6 +244,7 @@ module.exports = {
 	handleGetProduct,
 	handlePostCart,
 	handleDeleteCartItem,
-	handlePostOrder,
+	handleGetCheckoutSuccess,
 	handleGetOrderInvoice,
+	handleGetCheckoutCancel
 };

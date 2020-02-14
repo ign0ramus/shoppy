@@ -27,7 +27,12 @@ form {
 	height: 35rem;
 }
 
-.image img {
+.image--small {
+	height: 10rem;
+}
+
+.image img,
+.image--small img {
 	height: 100%;
 }
 
