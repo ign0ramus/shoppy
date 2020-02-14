@@ -27,11 +27,12 @@
 					</div>
 					<div class="card__actions">
 						<a class="btn" href="/products/<%= product.id %> ">Details</a>
-						<%- include('../includes/add-to-cart.ejs', {product, isAuthenticated}) %>
+						<%- include('../includes/add-to-cart.ejs', {product}) %>
 					</div>
 				</article>
 				<% }); %>
 			</div>
+			<%- include('../includes/pagination.ejs') %>
 			<% } else { %>
 			<h1>No products found</h1>
 			<% } %>
