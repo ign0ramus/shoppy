@@ -115,23 +115,23 @@ const handleGetProducts = async (req, res, next) => {
 	}
 };
 
-const handleDeleteProduct = async (req, res, next) => {
+const handleDeleteProduct = async (req, res) => {
 	try {
-		const { id } = req.body;
+		const { id } = req.params;
 		const product = await ProductModel.findOne({
 			_id: id,
 			userId: req.session.userId,
 		});
 
 		if (!product) {
-			return res.status(401);
+			return res.status(401).send();
 		}
 
 		await Promise.all([deleteFile(product.imageUrl), product.deleteOne()]);
 
-		res.redirect('/admin/products');
+		res.json({ message: 'Success' });
 	} catch (err) {
-		next(err);
+		res.status(500).send();
 	}
 };
 
