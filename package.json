@@ -8,6 +8,9 @@
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
+  "engines": {
+    "node": "12.15.0"
+  },
   "keywords": [],
   "author": "ign0ramus",
   "license": "ISC",
