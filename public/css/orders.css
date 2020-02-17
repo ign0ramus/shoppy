@@ -1,7 +1,8 @@
 .orders {
+  max-width: 40rem;
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: auto;
 }
 
 .orders__item h1 {
