@@ -1,6 +1,6 @@
 const { validationResult } = require('express-validator');
 
-const ProductModel = require('../models/product');
+const ProductModel = require('../database/models/product');
 const { deleteFile } = require('../utils/file');
 
 const handleGetAddProduct = (req, res, next) => {

@@ -6,11 +6,11 @@ const csrf = require('csurf');
 const flash = require('connect-flash');
 const multer = require('multer');
 
-const connectToMongoose = require('./database/db');
-const adminRoutes = require('./routes/admin');
-const shopRoutes = require('./routes/shop');
-const authRoutes = require('./routes/auth');
-const { handleGet404 } = require('./controllers/error.js');
+const connectToMongoose = require('./src/database/db');
+const adminRoutes = require('./src/routes/admin');
+const shopRoutes = require('./src/routes/shop');
+const authRoutes = require('./src/routes/auth');
+const { handleGet404 } = require('./src/controllers/error.js');
 
 const app = express();
 const store = new MongoDbStore({
@@ -67,7 +67,7 @@ app.use(handleGet404);
 
 app.use((error, req, res, next) => {
 	console.error(error);
-	res.render('500', {
+	res.render('errors/500', {
 		docTitle: 'Error occured!',
 		path: '',
 	});

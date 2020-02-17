@@ -3,8 +3,8 @@ const { validationResult } = require('express-validator');
 const sgMail = require('@sendgrid/mail');
 const crypto = require('crypto');
 
-const UserModel = require('../models/user');
-const ResetTokenModel = require('../models/resetToken');
+const UserModel = require('../database/models/user');
+const ResetTokenModel = require('../database/models/resetToken');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 

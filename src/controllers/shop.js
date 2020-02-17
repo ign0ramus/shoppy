@@ -3,9 +3,9 @@ const path = require('path');
 const PDFDocument = require('pdfkit');
 const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
 
-const ProductModel = require('../models/product');
-const UserModel = require('../models/user');
-const OrderModel = require('../models/order');
+const ProductModel = require('../database/models/product');
+const UserModel = require('../database/models/user');
+const OrderModel = require('../database/models/order');
 
 const ITEMS_PER_PAGE = 6;
 

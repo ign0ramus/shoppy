@@ -1,7 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
 
-const UserModel = require('../models/user');
+const UserModel = require('../database/models/user');
 
 const {
 	handleGetLogin,
