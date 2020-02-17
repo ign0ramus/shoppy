@@ -20,7 +20,7 @@
         <form class="login-form" action="/reset" method="POST">
             <div class="form-control">
                 <label for="email">Email</label>
-                <input type="email" name="email" id="email">
+                <input type="email" name="email" id="email" value="<%= oldInput ? oldInput.email : '' %>">
             </div>
             <button class="btn" type="submit">Reset Password</button>
             <input hidden name="_csrf" value="<%= csrfToken %>" />

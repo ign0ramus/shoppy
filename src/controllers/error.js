@@ -5,9 +5,10 @@ const handleGet404 = (req, res) => {
 	});
 };
 
-const handleGet500 = (req, res) => {
-	res.status(500).render('500', {
-		docTitle: 'Error',
+const handleGet500 = (error, req, res) => {
+	console.error(error);
+	res.render('errors/500', {
+		docTitle: 'Error occured!',
 		path: '',
 	});
 };

@@ -1,8 +1,11 @@
 const express = require('express');
 const { body } = require('express-validator');
 
-const UserModel = require('../database/models/user');
-
+const {
+	signUpValidations,
+	loginValidations,
+	resetValidation,
+} = require('../utils/validation/auth');
 const {
 	handleGetLogin,
 	handlePostLogin,
@@ -18,30 +21,12 @@ const {
 const router = express.Router();
 
 router.get('/login', handleGetLogin);
-router.post('/login', handlePostLogin);
+router.post('/login', loginValidations, handlePostLogin);
 router.post('/logout', handlePostLogout);
 router.get('/signup', handleGetSignup);
-router.post(
-	'/signup',
-	[
-		body('email')
-			.isEmail()
-			.withMessage('Please enter a valid email')
-			.custom(async email => {
-				const isUserExists = await UserModel.findOne({ email });
-				if (isUserExists) {
-					throw new Error('Email already exists');
-				}
-			})
-			.normalizeEmail(),
-		body('password')
-			.isLength({ min: 4 })
-			.withMessage('Password should be at least 4 characters'),
-	],
-	handlePostSignup
-);
+router.post('/signup', signUpValidations, handlePostSignup);
 router.get('/reset', handleGetReset);
-router.post('/reset', handlePostReset);
+router.post('/reset', resetValidation, handlePostReset);
 router.get('/reset/:token', handleGetNewPassword);
 router.post('/new-password', handlePostNewPassword);
 

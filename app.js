@@ -2,7 +2,7 @@ const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const MongoDbStore = require('connect-mongodb-session')(session);
-const csrf = require('csurf');
+const csrfProtection = require('csurf')();
 const flash = require('connect-flash');
 const multer = require('multer');
 
@@ -10,14 +10,13 @@ const connectToMongoose = require('./src/database/db');
 const adminRoutes = require('./src/routes/admin');
 const shopRoutes = require('./src/routes/shop');
 const authRoutes = require('./src/routes/auth');
-const { handleGet404 } = require('./src/controllers/error.js');
+const { handleGet404, handleGet500 } = require('./src/controllers/error.js');
 
 const app = express();
 const store = new MongoDbStore({
 	uri: process.env.DB_HOST,
 	collection: 'sessions',
 });
-const csrfProtection = csrf();
 const storage = multer.diskStorage({
 	destination: 'images',
 	filename: (req, file, cb) => {
@@ -37,7 +36,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 app.set('view engine', 'ejs');
-app.set('views', 'views');
+app.set('views', 'src/views');
 
 app.use(express.urlencoded({ extended: false }));
 app.use(multer({ storage, fileFilter }).single('image'));
@@ -64,14 +63,7 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 app.use(handleGet404);
-
-app.use((error, req, res, next) => {
-	console.error(error);
-	res.render('errors/500', {
-		docTitle: 'Error occured!',
-		path: '',
-	});
-});
+app.use(handleGet500);
 
 const run = async () => {
 	try {

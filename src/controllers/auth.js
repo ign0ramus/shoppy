@@ -5,6 +5,7 @@ const crypto = require('crypto');
 
 const UserModel = require('../database/models/user');
 const ResetTokenModel = require('../database/models/resetToken');
+const { generateResetPasaswordEmail } = require('../utils/email');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -18,24 +19,40 @@ const addUserIdToSession = (req, res, userId) => {
 	});
 };
 
-const handleGetLogin = (req, res, next) => {
-	const [error] = req.flash('error');
+const handleGetLogin = (req, res) => {
 	res.render('auth/login', {
 		path: '/login',
 		docTitle: 'Login',
-		error,
+		error: '',
+		oldInput: null,
 	});
 };
 
 const handlePostLogin = async (req, res, next) => {
 	try {
 		const { email, password } = req.body;
-		const user = await UserModel.findOne({ email });
-		const isCredsMatch =
-			user && (await bcrypt.compare(password, user.password));
-		if (!isCredsMatch) {
-			req.flash('error', 'Invalid email or password');
-			return res.redirect('/login');
+
+		const errors = validationResult(req).formatWith(({ msg }) => msg);
+
+		let error = null;
+		if (errors.isEmpty()) {
+			const user = await UserModel.findOne({ email });
+			const isCredsMatch =
+				user && (await bcrypt.compare(password, user.password));
+			if (!isCredsMatch) {
+				error = 'Invalid email or password';
+			}
+		} else {
+			error = errors.array();
+		}
+
+		if (error) {
+			return res.status(422).render('auth/login', {
+				path: '/login',
+				docTitle: 'Login',
+				error: error,
+				oldInput: { email, password },
+			});
 		}
 
 		addUserIdToSession(req, res, user.id);
@@ -97,17 +114,28 @@ const handlePostSignup = async (req, res, next) => {
 };
 
 const handleGetReset = (req, res, next) => {
-	const [error] = req.flash('error');
-	const [message] = req.flash('message');
 	res.render('auth/reset', {
 		path: '/reset',
 		docTitle: 'Reset Password',
-		error,
-		message,
+		error: '',
+		message: '',
+		oldInput: null,
 	});
 };
 
 const handlePostReset = (req, res, next) => {
+	const { email } = req.body;
+	const errors = validationResult(req).formatWith(({ msg }) => msg);
+	if (!errors.isEmpty()) {
+		return res.status(422).render('auth/reset', {
+			path: '/reset',
+			docTitle: 'reset',
+			error: errors.array(),
+			message: '',
+			oldInput: { email },
+		});
+	}
+
 	crypto.randomBytes(32, async (err, buffer) => {
 		if (err) {
 			return next(err);
@@ -126,20 +154,16 @@ const handlePostReset = (req, res, next) => {
 					userId: user,
 				});
 
-				await sgMail.send({
-					to: email,
-					from: 'ign0ramus.github.io@shoppy.com',
-					subject: 'Password reset',
-					html: `
-					<h1>You requested password reset</h1>
-					<p>Click this <a href="${process.env.HOST}/reset/${token}">link</a> to reset password</p>
-					<p>This link  valid only for one hour</p>
-					`,
-				});
+				await sgMail.send(generateResetPasaswordEmail(email, token));
 			}
 
-			req.flash('message', 'To continue password resetting check your email');
-			res.redirect('/reset');
+			res.render('auth/reset', {
+				path: '/reset',
+				docTitle: 'reset',
+				error: '',
+				message: 'To continue reset password - check your email',
+				oldInput: { email },
+			});
 		} catch (error) {
 			next(error);
 		}
