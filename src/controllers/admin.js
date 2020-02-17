@@ -22,7 +22,7 @@ const handlePostAddProduct = async (req, res, next) => {
 			return res.status(422).render('admin/add-or-edit-product', {
 				docTitle: 'Add Products',
 				path: '/admin/add-product',
-				product: { title, price, description },
+				product: { title, price, description, imageUrl: imageUrl || '' },
 				error: req.fileTypeError || errors.array(),
 			});
 		}
@@ -81,7 +81,7 @@ const handlePostEditProduct = async (req, res, next) => {
 			return res.status(422).render('admin/add-or-edit-product', {
 				docTitle: 'Edit Products',
 				path: '/admin/edit-product',
-				product: { id, title, price, description, imageUrl },
+				product: { id, title, price, description, imageUrl: imageUrl || '' },
 				error: req.fileTypeError || errors.array(),
 			});
 		}

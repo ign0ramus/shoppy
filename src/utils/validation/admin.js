@@ -1,4 +1,4 @@
-const { body, check } = require('express-validator');
+const { body, check, oneOf } = require('express-validator');
 
 const addOrEditProductValidations = [
 	body('title', 'Title should be alphanumeric and minimum 3 characters')
@@ -6,9 +6,12 @@ const addOrEditProductValidations = [
 		.isLength({ min: 3 })
 		.trim(),
 	body('price', 'Price should be floating number').isFloat(),
-	check('file', 'Image is required').custom(
-		(value, { req }) =>
-			req.file || req.body.imageUrl || req.originalUrl === '/admin/edit-product'
+	oneOf(
+		[
+			check('file').custom((value, { req }) => req.file || req.body.image),
+			body('imageUrl').isURL(),
+		],
+		'Image is required. Image file or image URL is not valid'
 	),
 	body(
 		'description',
