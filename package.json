@@ -5,7 +5,8 @@
   "repository": "https://github.com/ign0ramus/shoppy",
   "main": "shop.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "keywords": [],
   "author": "ign0ramus",

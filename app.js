@@ -12,6 +12,8 @@ const shopRoutes = require('./src/routes/shop');
 const authRoutes = require('./src/routes/auth');
 const { handleGet404, handleGet500 } = require('./src/controllers/error.js');
 
+const PORT = process.env.PORT || 3000;
+
 const app = express();
 const store = new MongoDbStore({
 	uri: process.env.DB_HOST,
@@ -68,8 +70,8 @@ app.use(handleGet500);
 const run = async () => {
 	try {
 		await connectToMongoose();
-		app.listen(3000, () => {
-			console.log('App is running on port 3000');
+		app.listen(PORT, () => {
+			console.log(`App is running on port ${PORT}`);
 		});
 	} catch (err) {
 		console.error(err);
