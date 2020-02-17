@@ -5,6 +5,7 @@ const MongoDbStore = require('connect-mongodb-session')(session);
 const csrfProtection = require('csurf')();
 const flash = require('connect-flash');
 const multer = require('multer');
+const helmet = require('helmet');
 
 const connectToMongoose = require('./src/database/db');
 const adminRoutes = require('./src/routes/admin');
@@ -54,6 +55,7 @@ app.use(
 );
 app.use(csrfProtection);
 app.use(flash());
+app.use(helmet());
 
 app.use((req, res, next) => {
 	res.locals.isAuthenticated = req.session.userId;
