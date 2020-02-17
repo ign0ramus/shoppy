@@ -8,8 +8,17 @@
                 <ul class="cart__item-list">
                     <% products.forEach(product => { %>
                         <li class="cart__item">
+                            <div class="cart__item-image">
+                                <img src="<%= product.imageUrl %>" alt="<%= product.title %>">
+                            </div>
                             <p>
-                            <%= product.title %> : <%= product.quantity %>
+                            <%= product.title %>
+                            </p>
+                            <p>
+                                Quantity: <%= product.quantity %>
+                            </p>
+                            <p>
+                                Price: <%= product.price * product.quantity %>
                             </p>
                             <form action="/cart-delete-item" method="POST">
                                 <button class="btn danger" type="submit">Delete</button>
