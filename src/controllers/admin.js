@@ -88,8 +88,10 @@ const handlePostEditProduct = async (req, res, next) => {
 
 		const image = req.file;
 		const productData = { title, price, description };
-		if (image && product.imageUrl) {
-			await deleteFile(product.imageUrl);
+		if (image) {
+			if (product.imageUrl) {
+				await deleteFile(product.imageUrl);
+			}
 			productData.imageUrl = image.path;
 		}
 
