@@ -9,7 +9,7 @@
                 <ul class="orders">
                     <% orders.forEach(order => { %>
                     <li class="orders__item">
-                        <h3>#<%= order.id %></h3>
+                        <h4>#<%= order.id.slice(-4, order.id.length) %></h4>
                         <a target="_blank" href="/orders/<%= order.id %>">Invoice</a>
                         <ul class="orders__products">
                             <% order.products.forEach(product => { %>

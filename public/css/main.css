@@ -15,25 +15,12 @@ main {
 	margin: auto;
 }
 
-form {
-	display: inline;
-}
-
 .centered {
 	text-align: center;
 }
 
-.image {
-	height: 35rem;
-}
-
-.image--small {
-	height: 10rem;
-}
-
-.image img,
-.image--small img {
-	height: 100%;
+.image img {
+	max-width: 100%;
 }
 
 .main-header {
@@ -119,7 +106,7 @@ form {
 	font: inherit;
 	text-decoration: none;
 	color: black;
-	font-size: 1.5rem;
+	font-size: 1rem;
 	padding: 0.5rem 2rem;
 	background: transparent;
 	border: none;
@@ -199,6 +186,9 @@ form {
 }
 
 .card__actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
 	padding: 1rem;
 	text-align: center;
 }
@@ -283,5 +273,13 @@ form {
 	}
 	.user-message {
 		width: 30rem;
+	}
+
+	.image {
+		height: 35rem;
+	}
+
+	.image img {
+		height: 100%;
 	}
 }

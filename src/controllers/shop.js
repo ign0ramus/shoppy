@@ -218,5 +218,5 @@ module.exports = {
 	handleDeleteCartItem,
 	handleGetCheckoutSuccess,
 	handleGetOrderInvoice,
-	handleGetCheckoutCancel
+	handleGetCheckoutCancel,
 };
