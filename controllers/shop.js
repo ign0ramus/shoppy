@@ -36,33 +36,6 @@ const handleGetHome = async (req, res, next) => {
 	}
 };
 
-const handleGetProducts = async (req, res, next) => {
-	try {
-		const page = req.query.page || 1;
-
-		const [products, total] = await Promise.all([
-			ProductModel.find()
-				.skip((page - 1) * ITEMS_PER_PAGE)
-				.limit(ITEMS_PER_PAGE),
-			ProductModel.countDocuments(),
-		]);
-
-		res.render('shop/products', {
-			products,
-			docTitle: 'All Products',
-			path: '/products',
-			page,
-			hasNextPage: ITEMS_PER_PAGE * page < total,
-			hasPrevPage: page > 1,
-			nextPage: +page + 1,
-			prevPage: page - 1,
-			lastPage: Math.ceil(total / ITEMS_PER_PAGE),
-		});
-	} catch (err) {
-		next(err);
-	}
-};
-
 const handleGetProduct = async (req, res, next) => {
 	try {
 		const { id } = req.params;
@@ -236,7 +209,6 @@ const handleGetOrderInvoice = async (req, res, next) => {
 };
 
 module.exports = {
-	handleGetProducts,
 	handleGetHome,
 	handleGetCart,
 	handleGetCheckout,

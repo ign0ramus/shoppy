@@ -2,7 +2,6 @@ const express = require('express');
 
 const {
 	handleGetHome,
-	handleGetProducts,
 	handleGetCart,
 	handleGetCheckout,
 	handleGetOrders,
@@ -18,7 +17,6 @@ const isAuth = require('../middleware/isAuth');
 const router = express.Router();
 
 router.get('/', handleGetHome);
-router.get('/products', handleGetProducts);
 router.get('/cart', isAuth, handleGetCart);
 router.post('/cart', isAuth, handlePostCart);
 router.get('/checkout', isAuth, handleGetCheckout);
