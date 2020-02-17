@@ -49,6 +49,12 @@
 	background: white;
 }
 
+.product-form__image {
+	display: flex;
+	justify-content: center;
+}
+
 .product-form__image img {
+	display: block;
 	max-width: 100%;
 }

@@ -28,13 +28,23 @@
             <div id="product-image" hidden class="product-form__image">
                 <img 
                     <% if (product) { %>
-                        src="/<%= product.imageUrl %>"
+                        src="<%= product.imageUrl %>"
                     <% } %>
                 alt="Product Image" />
             </div>
             <div class="form-control">
-                <label for="image">Image</label>
-                <input onchange="readUrl(this)" accept="image/*" type="file" value="" name="image" id="image">
+                <label for="image">Upload your image</label>
+                <input onchange="handleInputFile(this)" accept="image/*" type="file" value="" name="image" id="image">
+            </div>
+            <div class="form-control">
+                <label for="imageUrl">Or provide image url (recommended because server is hosting on a free service so images are stored very short time)</label>
+                <input onchange="handleInputUrl(this)" type="text" 
+                <% if (product && !product.imageUrl.startsWith('/images')) { %>
+                    value="<%= product.imageUrl %>"
+                <% } else { %>
+                    value=""
+                <% } %>
+                name="imageUrl" id="imageUrl">
             </div>
             <div class="form-control">
                 <label for="price">Price</label>
@@ -50,7 +60,10 @@
         </form>
     </main>
 	<script>
-        function readUrl(input) {
+        function handleInputFile(input) {
+            const imageUrlInput = document.querySelector('[name=imageUrl]');
+            imageUrlInput.value = '';
+            imageUrlInput.disabled = true;
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -59,6 +72,18 @@
                     imageContainer.hidden = false;
                 }
                 reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function handleInputUrl(input) {
+            const imageContainer = document.getElementById('product-image');
+            imageContainer.firstElementChild.src = input.value;
+            const fileInput = document.querySelector('[name=image]');
+            fileInput.value = '';
+            if (input.value !== '') {
+                fileInput.disabled = true;
+            } else {
+                fileInput.disabled = false;
             }
         }
 

@@ -8,7 +8,7 @@ const addOrEditProductValidations = [
 	body('price', 'Price should be floating number').isFloat(),
 	check('file', 'Image is required').custom(
 		(value, { req }) =>
-			Boolean(req.file) || req.originalUrl === '/admin/edit-product'
+			req.file || req.body.imageUrl || req.originalUrl === '/admin/edit-product'
 	),
 	body(
 		'description',

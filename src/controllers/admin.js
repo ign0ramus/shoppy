@@ -14,7 +14,7 @@ const handleGetAddProduct = (req, res, next) => {
 
 const handlePostAddProduct = async (req, res, next) => {
 	try {
-		const { title, description, price } = req.body;
+		const { title, description, price, imageUrl } = req.body;
 		const errors = validationResult(req).formatWith(({ msg }) => msg);
 		const image = req.file;
 
@@ -29,7 +29,7 @@ const handlePostAddProduct = async (req, res, next) => {
 
 		await ProductModel.create({
 			title,
-			imageUrl: image.path,
+			imageUrl: image ? `/${image.path}` : imageUrl,
 			price,
 			description,
 			userId: req.session.userId,
@@ -66,7 +66,7 @@ const handleGetEditProduct = async (req, res, next) => {
 
 const handlePostEditProduct = async (req, res, next) => {
 	try {
-		const { id, title, price, description } = req.body;
+		const { id, title, price, description, imageUrl } = req.body;
 		const product = await ProductModel.findOne({
 			_id: id,
 			userId: req.session.userId,
@@ -81,18 +81,18 @@ const handlePostEditProduct = async (req, res, next) => {
 			return res.status(422).render('admin/add-or-edit-product', {
 				docTitle: 'Edit Products',
 				path: '/admin/edit-product',
-				product: { id, title, price, description },
+				product: { id, title, price, description, imageUrl },
 				error: req.fileTypeError || errors.array(),
 			});
 		}
 
 		const image = req.file;
 		const productData = { title, price, description };
-		if (image) {
-			if (product.imageUrl) {
+		if (image || imageUrl) {
+			if (product.imageUrl && product.imageUrl.startsWith('/images')) {
 				await deleteFile(product.imageUrl);
 			}
-			productData.imageUrl = image.path;
+			productData.imageUrl = image ? `/${image.path}` : imageUrl;
 		}
 
 		await product.updateOne(productData);
@@ -129,7 +129,11 @@ const handleDeleteProduct = async (req, res) => {
 			return res.status(401).send();
 		}
 
-		await Promise.all([deleteFile(product.imageUrl), product.deleteOne()]);
+		if (product.imageUrl && product.imageUrl.startsWith('/images')) {
+			await deleteFile(product.imageUrl);
+		}
+
+		await product.deleteOne();
 
 		res.json({ message: 'Success' });
 	} catch (err) {
