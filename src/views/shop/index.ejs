@@ -27,7 +27,7 @@
 					</div>
 					<div class="card__actions">
 						<a class="btn" href="/products/<%= product.id %> ">Details</a>
-						<% if (product.userId.toString() !== userId.toString()) { %>
+						<% if (product.userId.toString() !== (userId ? userId.toString() : '')) { %>
 							<%- include('../includes/add-to-cart.ejs', {product}) %>
 						<% } else { %>
 							<span class="info">It is your product</span>

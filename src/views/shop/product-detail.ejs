@@ -10,7 +10,11 @@
                 <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
             </div>
             <h2>$<%= product.price %></h2>
-            <p><%= product.description %></p>
-			<%- include('../includes/add-to-cart.ejs') %>
+            <p class="description"><%= product.description %></p>
+            <% if (product.userId.toString() !== (userId ? userId.toString() : '')) { %>
+                <%- include('../includes/add-to-cart.ejs') %>
+            <% } else { %>
+                <span class="info">It is your product</span>
+            <% } %>
         </main>
     <%- include('../includes/end.ejs') %>

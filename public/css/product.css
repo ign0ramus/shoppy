@@ -24,6 +24,29 @@
 
 .product__description {
 	text-align: center;
+	overflow: hidden;
+	max-height: 6rem;
+	position: relative;
+	margin-right: -1em;
+	padding-right: 1em;
+	line-height: 1.2em;
+}
+
+.product__description:before {
+	content: '...';
+	position: absolute;
+	right: 0;
+	bottom: 0;
+}
+
+.product__description:after {
+	content: '';
+	position: absolute;
+	right: 0;
+	width: 1em;
+	height: 1em;
+	margin-top: 0.2em;
+	background: white;
 }
 
 .product-form__image img {

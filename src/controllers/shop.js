@@ -20,7 +20,7 @@ const handleGetHome = async (req, res, next) => {
 			ProductModel.countDocuments(),
 		]);
 		res.render('shop/index', {
-			products: products,
+			products,
 			userId: req.session.userId,
 			docTitle: 'All Products',
 			path: '/',
@@ -49,6 +49,7 @@ const handleGetProduct = async (req, res, next) => {
 			path: '/products',
 			docTitle: product.title,
 			product,
+			userId: req.session.userId,
 		});
 	} catch (err) {
 		next(err);
