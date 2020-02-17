@@ -26,7 +26,11 @@
                 <input type="text" value="<%= product ? product.title : '' %>" name="title" id="title">
             </div>
             <div id="product-image" hidden class="product-form__image">
-                <img src="" alt="Product Image" />
+                <img 
+                    <% if (product) { %>
+                        src="/<%= product.imageUrl %>"
+                    <% } %>
+                alt="Product Image" />
             </div>
             <div class="form-control">
                 <label for="image">Image</label>
@@ -57,5 +61,11 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
+
+        const imageContainer = document.getElementById('product-image');
+        if (imageContainer.firstElementChild.src) {
+            imageContainer.hidden = false;
+        }
+
     </script>
 <%- include('../includes/end.ejs') %>
