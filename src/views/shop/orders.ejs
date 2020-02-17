@@ -10,7 +10,7 @@
                     <% orders.forEach(order => { %>
                     <li class="orders__item">
                         <h4>#<%= order.id.slice(-4, order.id.length) %></h4>
-                        <a target="_blank" href="/orders/<%= order.id %>">Invoice</a>
+                        <a target="_blank" href="/orders/<%= order.id %>">Invoice.pdf</a>
                         <ul class="orders__products">
                             <% order.products.forEach(product => { %>
                                 <li class="orders__products-item"><%= product.title %>, Quantity: <%= product.quantity %></li>
