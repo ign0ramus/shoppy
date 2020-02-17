@@ -263,6 +263,13 @@ main {
 	color: #fff;
 }
 
+.info {
+	display: flex;
+	align-items: center;
+	color: #b8b8b8;
+	margin: 0 0.5rem;
+}
+
 @media (min-width: 768px) {
 	.main-header__nav {
 		display: flex;

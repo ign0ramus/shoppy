@@ -19,9 +19,9 @@ const handleGetHome = async (req, res, next) => {
 				.limit(ITEMS_PER_PAGE),
 			ProductModel.countDocuments(),
 		]);
-
 		res.render('shop/index', {
 			products: products,
+			userId: req.session.userId,
 			docTitle: 'All Products',
 			path: '/',
 			page,
