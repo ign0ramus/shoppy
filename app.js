@@ -6,7 +6,6 @@ const csrfProtection = require('csurf')();
 const flash = require('connect-flash');
 const multer = require('multer');
 const helmet = require('helmet');
-const compression = require('compression');
 
 const connectToMongoose = require('./src/database/db');
 const adminRoutes = require('./src/routes/admin');
@@ -57,7 +56,6 @@ app.use(
 app.use(csrfProtection);
 app.use(flash());
 app.use(helmet());
-app.use(compression());
 
 app.use((req, res, next) => {
 	res.locals.isAuthenticated = req.session.userId;
