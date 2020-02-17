@@ -35,8 +35,9 @@ const handlePostLogin = async (req, res, next) => {
 		const errors = validationResult(req).formatWith(({ msg }) => msg);
 
 		let error = null;
+		let user = null;
 		if (errors.isEmpty()) {
-			const user = await UserModel.findOne({ email });
+			user = await UserModel.findOne({ email });
 			const isCredsMatch =
 				user && (await bcrypt.compare(password, user.password));
 			if (!isCredsMatch) {
