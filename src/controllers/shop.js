@@ -12,7 +12,9 @@ const ITEMS_PER_PAGE = 6;
 const handleGetHome = async (req, res, next) => {
 	try {
 		const page = req.query.page || 1;
-
+		if (!parseInt(page)) {
+			return res.redirect('/');
+		}
 		const [products, total] = await Promise.all([
 			ProductModel.find()
 				.skip((page - 1) * ITEMS_PER_PAGE)
